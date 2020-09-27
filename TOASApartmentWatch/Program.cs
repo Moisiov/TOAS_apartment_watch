@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace TOAS_apartment_watch
+namespace TOASApartmentWatch
 {
     class Program
     {

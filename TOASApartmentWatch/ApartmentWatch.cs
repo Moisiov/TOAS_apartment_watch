@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using TOASApartmentWatch.Models.ApartmentData;
+using TOASApartmentWatch.Models.Options;
 
-namespace TOAS_apartment_watch
+namespace TOASApartmentWatch
 {
     class ApartmentWatch
     {

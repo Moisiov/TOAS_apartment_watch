@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TOAS_apartment_watch
+namespace TOASApartmentWatch.Models.ApartmentData
 {
     class MonthlyApartmentContainer
     {

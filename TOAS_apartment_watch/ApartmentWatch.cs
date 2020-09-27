@@ -19,7 +19,7 @@ namespace TOAS_apartment_watch
 
         public async Task run()
         {
-            string data = await _fetcher.FetchApartments();
+            var data = await _fetcher.FetchApartments();
             var fetchedApartments = parseHtmlString(data);
         }
 
@@ -35,7 +35,7 @@ namespace TOAS_apartment_watch
             {
                 var titleNode = monthNode.SelectSingleNode(".//h3");
                 Console.WriteLine("\n\n" + titleNode.InnerText + "\n");
-                string theadString = "{0,-20}{1,-60}{2,-8}{3,-8}{4}";
+                var theadString = "{0,-20}{1,-60}{2,-8}{3,-8}{4}";
                 Console.WriteLine(theadString, "Kohde", "Asuntotyyppi", "Neliöt", "Kerros", "Vuokra €/kk");
 
 
@@ -46,7 +46,7 @@ namespace TOAS_apartment_watch
                 {
                     var apartmentData = apartmentNode.SelectNodes("./td");
 
-                    string apartmentString = "{0,-20}{1,-60}{2,-8}{3,-8}{4}";
+                    var apartmentString = "{0,-20}{1,-60}{2,-8}{3,-8}{4}";
                     Console.WriteLine(apartmentString,
                         apartmentData[0].InnerText,
                         apartmentData[1].InnerText,

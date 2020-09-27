@@ -15,6 +15,7 @@ namespace TOAS_apartment_watch
         {
             _fetcher = new DataFetcher();
             _apartments = new List<MonthlyApartmentContainer>();
+            Console.OutputEncoding = Encoding.UTF8;
         }
 
         public async Task run()
@@ -22,6 +23,7 @@ namespace TOAS_apartment_watch
             var data = await _fetcher.FetchApartments();
             var fetchedApartments = parseHtmlString(data);
             compareApartments(fetchedApartments);
+            printApartmentData();
         }
 
         private List<MonthlyApartmentContainer> parseHtmlString(string data)
@@ -35,10 +37,6 @@ namespace TOAS_apartment_watch
             foreach (var monthNode in monthNodes)
             {
                 var titleNode = monthNode.SelectSingleNode(".//h3");
-                Console.WriteLine("\n\n" + titleNode.InnerText + "\n");
-                var theadString = "{0,-20}{1,-60}{2,-8}{3,-8}{4}";
-                Console.WriteLine(theadString, "Kohde", "Asuntotyyppi", "Neliöt", "Kerros", "Vuokra €/kk");
-
 
                 var apartmentNodes = monthNode.SelectNodes(".//tbody/tr");
                 List<ApartmentModel> apartments = new List<ApartmentModel>();
@@ -46,14 +44,6 @@ namespace TOAS_apartment_watch
                 foreach (var apartmentNode in apartmentNodes)
                 {
                     var apartmentData = apartmentNode.SelectNodes("./td");
-
-                    var apartmentString = "{0,-20}{1,-60}{2,-8}{3,-8}{4}";
-                    Console.WriteLine(apartmentString,
-                        apartmentData[0].InnerText,
-                        apartmentData[1].InnerText,
-                        apartmentData[2].InnerText,
-                        apartmentData[3].InnerText,
-                        apartmentData[4].InnerText);
 
                     apartments.Add(new ApartmentModel()
                     {
@@ -105,6 +95,29 @@ namespace TOAS_apartment_watch
             }
 
             _apartments = data;
+        }
+
+        private void printApartmentData()
+        {
+            Console.WriteLine("Apartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
+            foreach(var month in _apartments)
+            {
+                Console.WriteLine("\n\n" + month.Title + "\n");
+
+                var tableString = "{0,-20}{1,-60}{2,-8}{3,-8}{4, -24}{5, -16}";
+                Console.WriteLine(tableString, "Target", "Apartment type", "Area", "Floor", "Rent €/kk", "Added");
+
+                foreach (var apartment in month.Apartments)
+                {
+                    Console.WriteLine(tableString,
+                        apartment.Target,
+                        apartment.ApartmentType,
+                        apartment.Area,
+                        apartment.Floor,
+                        apartment.Rent,
+                        apartment.TimeStamp.ToString("dd.MM.yyyy HH:mm"));
+                }
+            }
         }
     }
 }

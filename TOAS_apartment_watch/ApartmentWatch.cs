@@ -21,6 +21,7 @@ namespace TOAS_apartment_watch
         {
             var data = await _fetcher.FetchApartments();
             var fetchedApartments = parseHtmlString(data);
+            compareApartments(fetchedApartments);
         }
 
         private List<MonthlyApartmentContainer> parseHtmlString(string data)
@@ -75,15 +76,35 @@ namespace TOAS_apartment_watch
             return currentApartments;
         }
 
-        /*private void compareApartments(List<MonthlyApartmentContainer> data)
+        private void compareApartments(List<MonthlyApartmentContainer> data)
         {
             foreach (var month in data)
             {
                 foreach (var apartment in month.Apartments)
                 {
-                    if(apartment)
+                    var monthlyApartments = _apartments.Find(x => x.Title == month.Title);
+                    if (monthlyApartments != null)
+                    {
+                        var foundApartment = monthlyApartments.Apartments.Find(x => x.Target == apartment.Target
+                                                                            && x.ApartmentType == apartment.ApartmentType
+                                                                            && x.Area == apartment.Area
+                                                                            && x.Floor == apartment.Floor
+                                                                            && x.Rent == apartment.Rent);
+
+                        if (foundApartment != null)
+                        {
+                            apartment.Target = foundApartment.Target;
+                            apartment.ApartmentType = foundApartment.ApartmentType;
+                            apartment.Area = foundApartment.Area;
+                            apartment.Floor = foundApartment.Floor;
+                            apartment.Rent = foundApartment.Rent;
+                            apartment.TimeStamp = foundApartment.TimeStamp;
+                        }
+                    }
                 }
             }
-        }*/
+
+            _apartments = data;
+        }
     }
 }

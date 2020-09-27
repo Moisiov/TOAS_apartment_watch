@@ -1,4 +1,4 @@
-# TOAS_apartment_watch
+# TOAS apartment watch
 
 Tool to check available TOAS apartments
 

@@ -15,15 +15,21 @@ namespace TOAS_apartment_watch
         {
             _fetcher = new DataFetcher();
             _apartments = new List<MonthlyApartmentContainer>();
+
             Console.OutputEncoding = Encoding.UTF8;
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public async Task run()
         {
-            var data = await _fetcher.FetchApartments();
-            var fetchedApartments = parseHtmlString(data);
-            compareApartments(fetchedApartments);
-            printApartmentData();
+            while (true)
+            {
+                var data = await _fetcher.FetchApartments();
+                var fetchedApartments = parseHtmlString(data);
+                compareApartments(fetchedApartments);
+                printApartmentData();
+                await Task.Delay(TimeSpan.FromMinutes(5));
+            }
         }
 
         private List<MonthlyApartmentContainer> parseHtmlString(string data)
@@ -99,7 +105,7 @@ namespace TOAS_apartment_watch
 
         private void printApartmentData()
         {
-            Console.WriteLine("Apartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
+            Console.WriteLine("\n\n\nApartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
             foreach(var month in _apartments)
             {
                 Console.WriteLine("\n\n" + month.Title + "\n");
@@ -109,6 +115,11 @@ namespace TOAS_apartment_watch
 
                 foreach (var apartment in month.Apartments)
                 {
+                    if (apartment.TimeStamp > DateTime.Now.AddHours(-1))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                    }
+
                     Console.WriteLine(tableString,
                         apartment.Target,
                         apartment.ApartmentType,
@@ -116,6 +127,11 @@ namespace TOAS_apartment_watch
                         apartment.Floor,
                         apartment.Rent,
                         apartment.TimeStamp.ToString("dd.MM.yyyy HH:mm"));
+
+                    if (Console.ForegroundColor == ConsoleColor.Green)
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
                 }
             }
         }

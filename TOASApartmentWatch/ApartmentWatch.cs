@@ -44,7 +44,7 @@ namespace TOASApartmentWatch
                 var newApartmentsFound = compareApartments(fetchedApartments);
                 printApartmentData();
                 if (newApartmentsFound && generalOptions.NotificationSoundOn) { notificationSound(); }
-                
+
                 await Task.Delay(TimeSpan.FromMinutes(generalOptions.FetchIntervalMinutes));
             }
         }
@@ -140,7 +140,7 @@ namespace TOASApartmentWatch
                 .Get<TextOutputOptions>();
 
             if (textOutputOptions.ClearConsoleAutomatically)
-            { 
+            {
                 Console.Clear();
                 Console.WriteLine("Apartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
             }
@@ -149,7 +149,7 @@ namespace TOASApartmentWatch
                 Console.WriteLine("\n\n\nApartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
             }
 
-            foreach(var month in _apartments)
+            foreach (var month in _apartments)
             {
                 Console.WriteLine("\n\n" + month.Title + "\n");
 

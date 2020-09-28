@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using TOASApartmentWatch.Models.Options;
-using Telegram.Bot;
+using TOASApartmentWatch.TelegramAPI;
 
 namespace TOASApartmentWatch
 {
@@ -15,8 +15,6 @@ namespace TOASApartmentWatch
         static async Task Main(string[] args)
         {
             Console.WriteLine("TOAS apartment watch starting");
-            // 123 123 test toimiiko
-
             RegisterServices();
 
             ApartmentWatch apartmentWatch = new ApartmentWatch(_serviceProvider);

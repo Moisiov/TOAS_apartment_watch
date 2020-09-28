@@ -8,6 +8,8 @@ using TOASApartmentWatch.Models.ApartmentData;
 using TOASApartmentWatch.Models.Options;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using TOASApartmentWatch.TelegramAPI;
+using Telegram.Bot;
 
 namespace TOASApartmentWatch
 {
@@ -16,12 +18,14 @@ namespace TOASApartmentWatch
         private static IServiceProvider _serviceProvider;
         private DataFetcher _fetcher;
         private List<MonthlyApartmentContainer> _apartments;
+        private ITelegramAPI _tgAPI;
 
         public ApartmentWatch(IServiceProvider provider)
         {
             _serviceProvider = provider;
             _fetcher = new DataFetcher();
             _apartments = new List<MonthlyApartmentContainer>();
+            _tgAPI = new TelegramBot();
 
             var textOutputOptions = _serviceProvider.GetService<IConfiguration>()
                 .GetSection("TextOutputOptions")
@@ -42,6 +46,7 @@ namespace TOASApartmentWatch
                 var data = await _fetcher.FetchApartments();
                 var fetchedApartments = parseHtmlString(data);
                 var newApartmentsFound = compareApartments(fetchedApartments);
+                _tgAPI.UpdateApartmentData(_apartments);
                 printApartmentData();
                 if (newApartmentsFound && generalOptions.NotificationSoundOn) { notificationSound(); }
                 

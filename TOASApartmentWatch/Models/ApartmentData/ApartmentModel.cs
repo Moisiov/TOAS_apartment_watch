@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TOASApartmentWatch.Models.ApartmentData
 {
-    class ApartmentModel
+    public class ApartmentModel
     {
         public string Target { get; set; }
         public string ApartmentType { get; set; }

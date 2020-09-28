@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using TOASApartmentWatch.Models.ApartmentData;
 using TOASApartmentWatch.Models.Options;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
 namespace TOASApartmentWatch
 {
@@ -39,8 +40,9 @@ namespace TOASApartmentWatch
             {
                 var data = await _fetcher.FetchApartments();
                 var fetchedApartments = parseHtmlString(data);
-                compareApartments(fetchedApartments);
+                var newApartmentsFound = compareApartments(fetchedApartments);
                 printApartmentData();
+                if (newApartmentsFound && _generalOptions.NotificationSoundOn) { notificationSound(); }
                 
                 await Task.Delay(TimeSpan.FromMinutes(_generalOptions.FetchTimerMinutes));
             }
@@ -86,8 +88,10 @@ namespace TOASApartmentWatch
             return currentApartments;
         }
 
-        private void compareApartments(List<MonthlyApartmentContainer> data)
+        private bool compareApartments(List<MonthlyApartmentContainer> data)
         {
+            bool newApartmentDetected = false;
+
             foreach (var month in data)
             {
                 foreach (var apartment in month.Apartments)
@@ -110,11 +114,21 @@ namespace TOASApartmentWatch
                             apartment.Rent = foundApartment.Rent;
                             apartment.TimeStamp = foundApartment.TimeStamp;
                         }
+                        else
+                        {
+                            newApartmentDetected = true;
+                        }
+                    }
+                    else
+                    {
+                        newApartmentDetected = true;
                     }
                 }
             }
 
             _apartments = data;
+
+            return newApartmentDetected;
         }
 
         private void printApartmentData()
@@ -152,7 +166,10 @@ namespace TOASApartmentWatch
 
         private void notificationSound()
         {
-
+            // TODO: Figure out better way of playing sounds (NAudio, Node tms?)
+            Process.Start(@"powershell", $@"[console]::beep(1800,100)");
+            Process.Start(@"powershell", $@"[console]::beep(1800,100)");
+            Process.Start(@"powershell", $@"[console]::beep(1800,100)");
         }
     }
 }

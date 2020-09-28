@@ -8,5 +8,6 @@ namespace TOASApartmentWatch.Models.Options
     {
         public int FetchTimerMinutes { get; set; }
         public bool PrintApartments { get; set; }
+        public bool NotificationSoundOn { get; set; }
     }
 }

@@ -1,12 +1,13 @@
 {
     "GeneralOptions": {
-        "FetchTimerMinutes": "1",
-        "PrintApartments": "true"
+        "FetchTimerMinutes": "5",
+        "PrintApartments": "true",
+        "NotificationSoundOn": "true"
     },
     "TextOutputOptions": {
         // https://docs.microsoft.com/en-us/dotnet/api/system.consolecolor?view=netcore-3.1
         "TextColor": "White",
         "TextHighLightColor": "Green",
-        "NewApartmentHighLightTime":  "60"
+        "NewApartmentHighLightTime": "60"
     }
 }

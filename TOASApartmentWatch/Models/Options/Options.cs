@@ -7,6 +7,5 @@ namespace TOASApartmentWatch.Models.Options
     public class Options
     {
         public GeneralOptions GeneralOptions { get; set; }
-        public TextOutputOptions TextOutputOptions { get; set; }
     }
 }

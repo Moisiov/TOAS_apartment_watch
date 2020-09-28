@@ -8,53 +8,46 @@ using TOASApartmentWatch.Models.ApartmentData;
 using TOASApartmentWatch.Models.Options;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
-using TOASApartmentWatch.TelegramAPI;
-using Telegram.Bot;
+using Microsoft.Extensions.Hosting;
+using System.Threading;
 
 namespace TOASApartmentWatch
 {
-    class ApartmentWatch
+    class ApartmentWatchService : BackgroundService
     {
         private static IServiceProvider _serviceProvider;
         private DataFetcher _fetcher;
         private List<MonthlyApartmentContainer> _apartments;
         private ITelegramAPI _tgAPI;
 
-        public ApartmentWatch(IServiceProvider provider)
+        public ApartmentWatchService(IServiceProvider provider)
         {
             _serviceProvider = provider;
             _fetcher = new DataFetcher();
             _apartments = new List<MonthlyApartmentContainer>();
-            _tgAPI = new TelegramBot();
-
-            var textOutputOptions = _serviceProvider.GetService<IConfiguration>()
-                .GetSection("TextOutputOptions")
-                .Get<TextOutputOptions>();
-
-            Console.OutputEncoding = Encoding.UTF8;
-            Console.ForegroundColor = textOutputOptions.TextColor;
         }
 
-        public async Task run()
+        protected override async Task ExecuteAsync(CancellationToken stopToken)
         {
-            while (true)
+            while (!stopToken.IsCancellationRequested)
             {
-                var generalOptions = _serviceProvider.GetService<IConfiguration>()
-                    .GetSection("GeneralOptions")
-                    .Get<GeneralOptions>();
+                var options = _serviceProvider.GetService<IConfiguration>().Get<Options>();
 
-                var data = await _fetcher.FetchApartments();
-                var fetchedApartments = parseHtmlString(data);
-                var newApartmentsFound = compareApartments(fetchedApartments);
-                _tgAPI.UpdateApartmentData(_apartments);
-                printApartmentData();
-                if (newApartmentsFound && generalOptions.NotificationSoundOn) { notificationSound(); }
-                
-                await Task.Delay(TimeSpan.FromMinutes(generalOptions.FetchIntervalMinutes));
+                await Run();
+                await Task.Delay(TimeSpan.FromMinutes(options.GeneralOptions.FetchIntervalMinutes), stopToken);
             }
         }
 
-        private List<MonthlyApartmentContainer> parseHtmlString(string data)
+        public async Task Run()
+        {
+            var data = await _fetcher.FetchApartments();
+            var fetchedApartments = ParseHtmlString(data);
+            var newApartmentsFound = CompareApartments(fetchedApartments);
+
+            
+        }
+
+        private List<MonthlyApartmentContainer> ParseHtmlString(string data)
         {
             List<MonthlyApartmentContainer> currentApartments = new List<MonthlyApartmentContainer>();
             var html = new HtmlDocument();
@@ -93,8 +86,8 @@ namespace TOASApartmentWatch
 
             return currentApartments;
         }
-        // test
-        private bool compareApartments(List<MonthlyApartmentContainer> data)
+
+        private bool CompareApartments(List<MonthlyApartmentContainer> data)
         {
             bool newApartmentDetected = false;
             bool initialData = _apartments.Count == 0 ? true : false;
@@ -136,58 +129,6 @@ namespace TOASApartmentWatch
             _apartments = data;
 
             return newApartmentDetected;
-        }
-
-        private void printApartmentData()
-        {
-            var textOutputOptions = _serviceProvider.GetService<IConfiguration>()
-                .GetSection("TextOutputOptions")
-                .Get<TextOutputOptions>();
-
-            if (textOutputOptions.ClearConsoleAutomatically)
-            { 
-                Console.Clear();
-                Console.WriteLine("Apartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
-            }
-            else
-            {
-                Console.WriteLine("\n\n\nApartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
-            }
-
-            foreach(var month in _apartments)
-            {
-                Console.WriteLine("\n\n" + month.Title + "\n");
-
-                var tableString = "{0,-20}{1,-60}{2,-8}{3,-8}{4, -24}{5, -16}";
-                Console.WriteLine(tableString, "Target", "Apartment type", "Area", "Floor", "Rent €/kk", "Added");
-
-                foreach (var apartment in month.Apartments)
-                {
-                    if (apartment.TimeStamp > DateTime.Now.AddMinutes(-textOutputOptions.NewApartmentHighLightMinutes))
-                    {
-                        Console.ForegroundColor = textOutputOptions.TextHighlightColor;
-                    }
-
-                    Console.WriteLine(tableString,
-                        apartment.Target,
-                        apartment.ApartmentType,
-                        apartment.Area,
-                        apartment.Floor,
-                        apartment.Rent,
-                        apartment.TimeStamp.ToString("dd.MM.yyyy HH:mm"));
-
-                    if (Console.ForegroundColor == textOutputOptions.TextHighlightColor)
-                    {
-                        Console.ForegroundColor = textOutputOptions.TextColor;
-                    }
-                }
-            }
-        }
-
-        private void notificationSound()
-        {
-            // TODO: Figure out better way of playing sounds (NAudio, Node tms?)
-            Process.Start(@"powershell", $@"[console]::beep(1800,400)");
         }
     }
 }

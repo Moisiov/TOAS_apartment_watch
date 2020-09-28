@@ -1,14 +1,5 @@
 {
     "GeneralOptions": {
-        "FetchIntervalMinutes": "1",
-        "PrintApartments": "true",
-        "NotificationSoundOn": "true"
-    },
-    "TextOutputOptions": {
-        // https://docs.microsoft.com/en-us/dotnet/api/system.consolecolor?view=netcore-3.1
-        "TextColor": "White",
-        "TextHighLightColor": "Green",
-        "NewApartmentHighLightMinutes": "60",
-        "ClearConsoleAutomatically":  "true"
+        "FetchIntervalMinutes": "1"
     }
 }

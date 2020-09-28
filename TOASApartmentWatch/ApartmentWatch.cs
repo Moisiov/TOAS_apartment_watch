@@ -88,7 +88,7 @@ namespace TOASApartmentWatch
 
             return currentApartments;
         }
-
+        // test
         private bool compareApartments(List<MonthlyApartmentContainer> data)
         {
             bool newApartmentDetected = false;

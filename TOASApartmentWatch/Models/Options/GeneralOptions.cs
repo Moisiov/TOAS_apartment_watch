@@ -7,7 +7,5 @@ namespace TOASApartmentWatch.Models.Options
     public class GeneralOptions
     {
         public int FetchIntervalMinutes { get; set; }
-        public bool PrintApartments { get; set; }
-        public bool NotificationSoundOn { get; set; }
     }
 }

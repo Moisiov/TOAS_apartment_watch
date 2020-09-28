@@ -13,15 +13,9 @@ namespace TOASApartmentWatch
 {
     class Program
     {
-        private static IServiceProvider _serviceProvider;
         static void Main(string[] args)
         {
             Console.WriteLine("TOAS apartment watch starting");
-
-            /*RegisterServices();
-
-            ApartmentWatch apartmentWatch = new ApartmentWatch(_serviceProvider);
-            await apartmentWatch.run();*/
 
             CreateHostBuilder(args).Build().Run();
         }
@@ -32,16 +26,5 @@ namespace TOASApartmentWatch
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-
-        private static void RegisterServices()
-        {
-            var services = new ServiceCollection();
-            var configurationBuilder = new ConfigurationBuilder();
-            var options = configurationBuilder.AddJsonFile("options.json", false, true)
-                .Build();
-            services.AddSingleton<IConfiguration>(options);
-
-            _serviceProvider = services.BuildServiceProvider(true);
-        }
     }
 }

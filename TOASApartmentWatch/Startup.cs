@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace TOASApartmentWatch
 {
@@ -22,6 +23,14 @@ namespace TOASApartmentWatch
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            // DI registrations
+            var configurationBuilder = new ConfigurationBuilder();
+            var options = configurationBuilder.AddJsonFile("options.json", false, true)
+                .Build();
+            services.AddSingleton<IConfiguration>(options);
+
+            services.AddSingleton<IHostedService, ApartmentWatchService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -15,6 +15,7 @@ namespace TOASApartmentWatch
         static async Task Main(string[] args)
         {
             Console.WriteLine("TOAS apartment watch starting");
+            // 123 123 test toimiiko
 
             RegisterServices();
 

@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
+using TOASApartmentWatch.TelegramAPI;
 
 namespace TOASApartmentWatch
 {
@@ -18,7 +19,6 @@ namespace TOASApartmentWatch
         private static IServiceProvider _serviceProvider;
         private DataFetcher _fetcher;
         private List<MonthlyApartmentContainer> _apartments;
-        private ITelegramAPI _tgAPI;
 
         public ApartmentWatchService(IServiceProvider provider)
         {
@@ -43,8 +43,7 @@ namespace TOASApartmentWatch
             var data = await _fetcher.FetchApartments();
             var fetchedApartments = ParseHtmlString(data);
             var newApartmentsFound = CompareApartments(fetchedApartments);
-
-            
+            _serviceProvider.GetService<ITelegramAPI>().UpdateApartmentData(_apartments);
         }
 
         private List<MonthlyApartmentContainer> ParseHtmlString(string data)

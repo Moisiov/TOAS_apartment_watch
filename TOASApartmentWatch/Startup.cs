@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TOASApartmentWatch.TelegramAPI;
 
 namespace TOASApartmentWatch
 {
@@ -29,7 +30,7 @@ namespace TOASApartmentWatch
             var options = configurationBuilder.AddJsonFile("options.json", false, true)
                 .Build();
             services.AddSingleton<IConfiguration>(options);
-
+            services.AddSingleton<ITelegramAPI, TelegramBot>();
             services.AddSingleton<IHostedService, ApartmentWatchService>();
         }
 

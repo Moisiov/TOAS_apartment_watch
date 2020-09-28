@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using TOASApartmentWatch.Models.Options;
+using Telegram.Bot;
 
 namespace TOASApartmentWatch
 {
@@ -28,6 +29,8 @@ namespace TOASApartmentWatch
             var options = configurationBuilder.AddJsonFile("options.json", false, true)
                 .Build();
             services.AddSingleton<IConfiguration>(options);
+
+            // services.AddSingleton<>
 
             _serviceProvider = services.BuildServiceProvider(true);
         }

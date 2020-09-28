@@ -17,34 +17,35 @@ namespace TOASApartmentWatch
         private DataFetcher _fetcher;
         private List<MonthlyApartmentContainer> _apartments;
 
-        private GeneralOptions _generalOptions;
-        private TextOutputOptions _textOutPutOptions;
-
         public ApartmentWatch(IServiceProvider provider)
         {
             _serviceProvider = provider;
             _fetcher = new DataFetcher();
             _apartments = new List<MonthlyApartmentContainer>();
 
-            var configuration = _serviceProvider.GetService<IConfiguration>();
-            _generalOptions = configuration.GetSection("GeneralOptions").Get<GeneralOptions>();
-            _textOutPutOptions = configuration.GetSection("TextOutputOptions").Get<TextOutputOptions>();
+            var textOutputOptions = _serviceProvider.GetService<IConfiguration>()
+                .GetSection("TextOutputOptions")
+                .Get<TextOutputOptions>();
 
             Console.OutputEncoding = Encoding.UTF8;
-            Console.ForegroundColor = _textOutPutOptions.TextColor;
+            Console.ForegroundColor = textOutputOptions.TextColor;
         }
 
         public async Task run()
         {
             while (true)
             {
+                var generalOptions = _serviceProvider.GetService<IConfiguration>()
+                    .GetSection("GeneralOptions")
+                    .Get<GeneralOptions>();
+
                 var data = await _fetcher.FetchApartments();
                 var fetchedApartments = parseHtmlString(data);
                 var newApartmentsFound = compareApartments(fetchedApartments);
                 printApartmentData();
-                if (newApartmentsFound && _generalOptions.NotificationSoundOn) { notificationSound(); }
+                if (newApartmentsFound && generalOptions.NotificationSoundOn) { notificationSound(); }
                 
-                await Task.Delay(TimeSpan.FromMinutes(_generalOptions.FetchTimerMinutes));
+                await Task.Delay(TimeSpan.FromMinutes(generalOptions.FetchIntervalMinutes));
             }
         }
 
@@ -91,6 +92,7 @@ namespace TOASApartmentWatch
         private bool compareApartments(List<MonthlyApartmentContainer> data)
         {
             bool newApartmentDetected = false;
+            bool initialData = _apartments.Count == 0 ? true : false;
 
             foreach (var month in data)
             {
@@ -133,7 +135,20 @@ namespace TOASApartmentWatch
 
         private void printApartmentData()
         {
-            Console.WriteLine("\n\n\nApartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
+            var textOutputOptions = _serviceProvider.GetService<IConfiguration>()
+                .GetSection("TextOutputOptions")
+                .Get<TextOutputOptions>();
+
+            if (textOutputOptions.ClearConsoleAutomatically)
+            { 
+                Console.Clear();
+                Console.WriteLine("Apartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
+            }
+            else
+            {
+                Console.WriteLine("\n\n\nApartment situation " + DateTime.Now.ToString("dd.MM.yyyy HH:mm"));
+            }
+
             foreach(var month in _apartments)
             {
                 Console.WriteLine("\n\n" + month.Title + "\n");
@@ -143,9 +158,9 @@ namespace TOASApartmentWatch
 
                 foreach (var apartment in month.Apartments)
                 {
-                    if (apartment.TimeStamp > DateTime.Now.AddMinutes(-_textOutPutOptions.NewApartmentHighLightTime))
+                    if (apartment.TimeStamp > DateTime.Now.AddMinutes(-textOutputOptions.NewApartmentHighLightMinutes))
                     {
-                        Console.ForegroundColor = _textOutPutOptions.TextHighlightColor;
+                        Console.ForegroundColor = textOutputOptions.TextHighlightColor;
                     }
 
                     Console.WriteLine(tableString,
@@ -156,9 +171,9 @@ namespace TOASApartmentWatch
                         apartment.Rent,
                         apartment.TimeStamp.ToString("dd.MM.yyyy HH:mm"));
 
-                    if (Console.ForegroundColor == _textOutPutOptions.TextHighlightColor)
+                    if (Console.ForegroundColor == textOutputOptions.TextHighlightColor)
                     {
-                        Console.ForegroundColor = _textOutPutOptions.TextColor;
+                        Console.ForegroundColor = textOutputOptions.TextColor;
                     }
                 }
             }
@@ -167,9 +182,7 @@ namespace TOASApartmentWatch
         private void notificationSound()
         {
             // TODO: Figure out better way of playing sounds (NAudio, Node tms?)
-            Process.Start(@"powershell", $@"[console]::beep(1800,100)");
-            Process.Start(@"powershell", $@"[console]::beep(1800,100)");
-            Process.Start(@"powershell", $@"[console]::beep(1800,100)");
+            Process.Start(@"powershell", $@"[console]::beep(1800,400)");
         }
     }
 }

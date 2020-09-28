@@ -8,6 +8,7 @@ namespace TOASApartmentWatch.Models.Options
     {
         public ConsoleColor TextColor { get; set; }
         public ConsoleColor TextHighlightColor { get; set; }
-        public int NewApartmentHighLightTime { get; set; }
+        public int NewApartmentHighLightMinutes { get; set; }
+        public bool ClearConsoleAutomatically { get; set; }
     }
 }

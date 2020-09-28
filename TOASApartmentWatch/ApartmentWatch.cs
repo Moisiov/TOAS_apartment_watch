@@ -3,23 +3,34 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Configuration;
 using TOASApartmentWatch.Models.ApartmentData;
 using TOASApartmentWatch.Models.Options;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TOASApartmentWatch
 {
     class ApartmentWatch
     {
+        private static IServiceProvider _serviceProvider;
         private DataFetcher _fetcher;
         private List<MonthlyApartmentContainer> _apartments;
 
-        public ApartmentWatch()
+        private GeneralOptions _generalOptions;
+        private TextOutputOptions _textOutPutOptions;
+
+        public ApartmentWatch(IServiceProvider provider)
         {
+            _serviceProvider = provider;
             _fetcher = new DataFetcher();
             _apartments = new List<MonthlyApartmentContainer>();
 
+            var configuration = _serviceProvider.GetService<IConfiguration>();
+            _generalOptions = configuration.GetSection("GeneralOptions").Get<GeneralOptions>();
+            _textOutPutOptions = configuration.GetSection("TextOutputOptions").Get<TextOutputOptions>();
+
             Console.OutputEncoding = Encoding.UTF8;
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = _textOutPutOptions.TextColor;
         }
 
         public async Task run()
@@ -30,7 +41,8 @@ namespace TOASApartmentWatch
                 var fetchedApartments = parseHtmlString(data);
                 compareApartments(fetchedApartments);
                 printApartmentData();
-                await Task.Delay(TimeSpan.FromMinutes(5));
+                
+                await Task.Delay(TimeSpan.FromMinutes(_generalOptions.FetchTimerMinutes));
             }
         }
 
@@ -117,9 +129,9 @@ namespace TOASApartmentWatch
 
                 foreach (var apartment in month.Apartments)
                 {
-                    if (apartment.TimeStamp > DateTime.Now.AddHours(-1))
+                    if (apartment.TimeStamp > DateTime.Now.AddMinutes(-_textOutPutOptions.NewApartmentHighLightTime))
                     {
-                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.ForegroundColor = _textOutPutOptions.TextHighlightColor;
                     }
 
                     Console.WriteLine(tableString,
@@ -130,12 +142,17 @@ namespace TOASApartmentWatch
                         apartment.Rent,
                         apartment.TimeStamp.ToString("dd.MM.yyyy HH:mm"));
 
-                    if (Console.ForegroundColor == ConsoleColor.Green)
+                    if (Console.ForegroundColor == _textOutPutOptions.TextHighlightColor)
                     {
-                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = _textOutPutOptions.TextColor;
                     }
                 }
             }
+        }
+
+        private void notificationSound()
+        {
+
         }
     }
 }
